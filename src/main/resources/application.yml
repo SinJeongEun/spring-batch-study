@@ -1,0 +1,39 @@
+#spring:
+#  batch:
+#    job:
+#      names: ${job.name:NONE}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#server:
+#  port: 9090
+#
+#spring:
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    database: mysql
+#
+#  datasource:
+#    hikari:
+#      driver-class-name: com.mysql.cj.jdbc.Driver
+#      url: jdbc:mysql://localhost:3306/spring_batch?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Seoul
+#    username: root
+#    password:
