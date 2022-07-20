@@ -1,6 +1,8 @@
 #spring:
 #  batch:
 #    job:
+#    jdbc:
+##      initialize-schema:  # 스크립트 생성 시점을 설정한다.
 #      names: ${job.name:NONE}
 
 
