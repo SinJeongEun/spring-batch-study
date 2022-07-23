@@ -3,6 +3,7 @@ package com.example.springbatchexample.part3;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -85,10 +86,10 @@ public class ChunkProcessingConfiguration {
 
         return (contribution, chunkContext) -> {
             StepExecution stepExecution = contribution.getStepExecution();
-//            JobParameters jobParameters = stepExecution.getJobParameters();
+            JobParameters jobParameters = stepExecution.getJobParameters(); // JobParameters 객체를 사용하여 job parameter 꺼내기
 //            String value = jobParameters.getString("chunkSize", "10");
 
-            int chunkSize = StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : 10;
+            int chunkSize = StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : 10; // 이는 Spring Expression Language  방식
 
             int fromIndex = stepExecution.getReadCount(); // 0
             int toIndex = fromIndex + chunkSize; // 시작 인덱스부터 Chunk 사이까지 읽은 인덱스 뽑기 / 0 + 10
