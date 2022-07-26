@@ -2,7 +2,21 @@ spring:
   batch:
     job:
       names: ${job.name:NONE}
+
 #      initialize-schema:  # 스크립트 생성 시점을 설정한다.
+  datasource:
+    driver-class-name: org.h2.Driver
+  sql:
+    init:
+      data-locations: classpath:person.sql
+#  datasource:
+#    hikari:
+#      driver-class-name: org.h2.Driver
+#    sql:
+#      init:
+#        data-locations: classpath:person.sql
+
+
 
 
 
