@@ -1,5 +1,6 @@
 package com.example.springbatchexample.part3;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -8,7 +9,9 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
@@ -17,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +28,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 public class ItemReaderConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final DataSource dataSource;
+//    private final DataSource dataSource;
+    private final EntityManagerFactory entityManagerFactory;
 
 
-    public ItemReaderConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory, DataSource dataSource) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
-        this.dataSource = dataSource;
-    }
+//    public ItemReaderConfiguration(JobBuilderFactory jobBuilderFactory,
+//                                   StepBuilderFactory stepBuilderFactory,
+//                                   EntityManagerFactory entityManagerFactory) {
+//        this.jobBuilderFactory = jobBuilderFactory;
+//        this.stepBuilderFactory = stepBuilderFactory;
+//        this.entityManagerFactory = entityManagerFactory;
+//    }
 
 
     @Bean
@@ -43,7 +51,8 @@ public class ItemReaderConfiguration {
                 .incrementer(new RunIdIncrementer())
                 .start(this.customItemReaderStep())
                 .next(this.csvFileStep())
-                .next(this.jdbcStep())
+//                .next(this.jdbcStep())
+                .next(this.jpaStep())
                 .build();
     }
 
@@ -65,30 +74,49 @@ public class ItemReaderConfiguration {
                 .build();
     }
 
+//    @Bean
+//    public Step jdbcStep() throws Exception {
+//        return stepBuilderFactory.get("jdbcStep")
+//                .<Person, Person>chunk(10)
+//                .reader(this.jdbcCursorItemReader())
+//                .writer(itemWriter())
+//                .build();
+//    }
+
     @Bean
-    public Step jdbcStep() throws Exception {
-        return stepBuilderFactory.get("jdbcStep")
+    public Step jpaStep() throws Exception {
+        return stepBuilderFactory.get("jpaStep")
                 .<Person, Person>chunk(10)
-                .reader(this.jdbcCursorItemReader())
+                .reader(this.jpaCursorItemReader())
                 .writer(itemWriter())
                 .build();
     }
 
-    private JdbcCursorItemReader<Person> jdbcCursorItemReader() throws Exception {
-        JdbcCursorItemReader<Person> itemReader = new JdbcCursorItemReaderBuilder<Person>()
-                .name("jdbcCursorItemReader")
-                .dataSource(dataSource)
-                .sql("select id, name, age, address from person") // 데이터 조회하기
-                .rowMapper((rs, rowNum) -> new Person(rs.getInt(1) // column index 는 1부터 시작한다.
-                        , rs.getString(2)
-                        , rs.getString(3)
-                        , rs.getString(4))
-                )//조회한 데이터 person 객체로 매핑하기
+    private JpaCursorItemReader<Person> jpaCursorItemReader() throws Exception {
+        JpaCursorItemReader<Person> itemReader = new JpaCursorItemReaderBuilder<Person>()
+                .name("jpaCursorItemReader")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("select p from Person p") // jpql 사용
                 .build();
         itemReader.afterPropertiesSet();
         return itemReader;
+   }
 
-    }
+//    private JdbcCursorItemReader<Person> jdbcCursorItemReader() throws Exception {
+//        JdbcCursorItemReader<Person> itemReader = new JdbcCursorItemReaderBuilder<Person>()
+//                .name("jdbcCursorItemReader")
+//                .dataSource(dataSource)
+//                .sql("select id, name, age, address from person") // 데이터 조회하기
+//                .rowMapper((rs, rowNum) -> new Person(rs.getInt(1) // column index 는 1부터 시작한다.
+//                        , rs.getString(2)
+//                        , rs.getString(3)
+//                        , rs.getString(4))
+//                )//조회한 데이터 person 객체로 매핑하기
+//                .build();
+//        itemReader.afterPropertiesSet();
+//        return itemReader;
+
+//    }
 
     private FlatFileItemReader<Person> csvFileItemReader() throws Exception {
         //csv 파일과 Person 매핑하는 로직
