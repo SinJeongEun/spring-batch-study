@@ -1,10 +1,19 @@
 spring:
   datasource:
     hikari:
-      jdbc-url: jdbc:mysql://localhost:3306/spring_batch
-      driver-class-name: com.mysql.cj.jdbc.Driver
+      #rewriteBatchedStatements=true 는 bulk insert 를 사용하기 위한 옵션
+      jdbc-url: jdbc:mysql://localhost:3306/spring_batch?rewriteBatchedStatements=true
       username: root
       password:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/spring_batch?rewriteBatchedStatements=true
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    username: root
+#    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
   batch:
     jdbc:
       initialize-schema: never
