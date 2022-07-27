@@ -33,7 +33,7 @@ public class ItemReaderConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 //    private final DataSource dataSource;
-    private final EntityManagerFactory entityManagerFactory;
+//    private final EntityManagerFactory entityManagerFactory;
 
 
 //    public ItemReaderConfiguration(JobBuilderFactory jobBuilderFactory,
@@ -52,7 +52,7 @@ public class ItemReaderConfiguration {
                 .start(this.customItemReaderStep())
                 .next(this.csvFileStep())
 //                .next(this.jdbcStep())
-                .next(this.jpaStep())
+//                .next(this.jpaStep())
                 .build();
     }
 
@@ -83,24 +83,24 @@ public class ItemReaderConfiguration {
 //                .build();
 //    }
 
-    @Bean
-    public Step jpaStep() throws Exception {
-        return stepBuilderFactory.get("jpaStep")
-                .<Person, Person>chunk(10)
-                .reader(this.jpaCursorItemReader())
-                .writer(itemWriter())
-                .build();
-    }
+//    @Bean
+//    public Step jpaStep() throws Exception {
+//        return stepBuilderFactory.get("jpaStep")
+//                .<Person, Person>chunk(10)
+//                .reader(this.jpaCursorItemReader())
+//                .writer(itemWriter())
+//                .build();
+//    }
 
-    private JpaCursorItemReader<Person> jpaCursorItemReader() throws Exception {
-        JpaCursorItemReader<Person> itemReader = new JpaCursorItemReaderBuilder<Person>()
-                .name("jpaCursorItemReader")
-                .entityManagerFactory(entityManagerFactory)
-                .queryString("select p from Person p") // jpql 사용
-                .build();
-        itemReader.afterPropertiesSet();
-        return itemReader;
-   }
+//    private JpaCursorItemReader<Person> jpaCursorItemReader() throws Exception {
+//        JpaCursorItemReader<Person> itemReader = new JpaCursorItemReaderBuilder<Person>()
+//                .name("jpaCursorItemReader")
+//                .entityManagerFactory(entityManagerFactory)
+//                .queryString("select p from Person p") // jpql 사용
+//                .build();
+//        itemReader.afterPropertiesSet();
+//        return itemReader;
+//   }
 
 //    private JdbcCursorItemReader<Person> jdbcCursorItemReader() throws Exception {
 //        JdbcCursorItemReader<Person> itemReader = new JdbcCursorItemReaderBuilder<Person>()
