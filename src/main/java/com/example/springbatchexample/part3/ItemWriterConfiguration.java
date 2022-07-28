@@ -1,6 +1,5 @@
 package com.example.springbatchexample.part3;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -11,20 +10,18 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.builder.FlatFileItemWriterBuilder;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,30 +31,26 @@ import java.util.List;
 public class ItemWriterConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
+//    private final DataSource dataSource;
+    private final EntityManagerFactory entityManagerFactory;
 
-    @Qualifier("datasource")
-    private  DataSource dataSource;
-
-    @Bean(name = "dataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    public DataSource DataSource() {
-       return DataSourceBuilder.create().build();
-    }
     public ItemWriterConfiguration(JobBuilderFactory jobBuilderFactory,
-                                       StepBuilderFactory stepBuilderFactory
-//                                       DataSource dataSource
-    ) {
+                                   StepBuilderFactory stepBuilderFactory,
+//                                   DataSource dataSource,
+                                   EntityManagerFactory entityManagerFactory) {
             this.jobBuilderFactory = jobBuilderFactory;
             this.stepBuilderFactory = stepBuilderFactory;
-//            this.dataSource = dataSource;
-        }
+//        this.dataSource = dataSource;
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     @Bean
     public Job itemWriterJob() throws Exception {
         return jobBuilderFactory.get("itemWriterJob")
                 .incrementer(new RunIdIncrementer())
                 .start(this.csvItemWriterStep())
-                .next(this.jdbcBatchItemWriterStep())
+//                .next(this.jdbcBatchItemWriterStep())
+                .next(this.jpaItemWriterStep())
                 .build();
     }
 
@@ -71,24 +64,43 @@ public class ItemWriterConfiguration {
                 .build();
     }
 
+//    @Bean
+//    public Step jdbcBatchItemWriterStep() {
+//        return stepBuilderFactory.get("jdbcBatchItemWriterStep")
+//                .<Person, Person>chunk(10)
+//                .reader(itemReader())
+//                .writer(jdbcBatchItemWriter())
+//                .build();
+//    }
+
     @Bean
-    public Step jdbcBatchItemWriterStep() {
-        return stepBuilderFactory.get("jdbcBatchItemWriterStep")
+    public Step jpaItemWriterStep() throws Exception {
+        return stepBuilderFactory.get("jpaItemWriterStep")
                 .<Person, Person>chunk(10)
                 .reader(itemReader())
-                .writer(jdbcBatchItemWriter())
+                .writer(jpaItemWriter())
                 .build();
     }
 
-    private ItemWriter<Person> jdbcBatchItemWriter() {
-        JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriterBuilder<Person>()
-                .dataSource(dataSource)
-                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>()) // BeanPropertyItemSqlParameterSourceProvider : person 객체를 파라미터로 자동생성 할 수 있는 기능
-                .sql("insert into person(name, age, address) values(:name, :age, :address)")
+    private ItemWriter<Person> jpaItemWriter() throws Exception {
+        JpaItemWriter<Person> itemWriter = new JpaItemWriterBuilder<Person>()
+                .entityManagerFactory(entityManagerFactory)
+                .usePersist(true)
                 .build();
         itemWriter.afterPropertiesSet();
         return itemWriter;
     }
+
+//    private ItemWriter<Person> jdbcBatchItemWriter() {
+//        JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriterBuilder<Person>()
+//                .dataSource(dataSource)
+//                // BeanPropertyItemSqlParameterSourceProvider : person 객체를 파라미터로 자동생성 할 수 있는 기능
+//                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+//                .sql("insert into person(name, age, address) values(:name, :age, :address)")
+//                .build();
+//        itemWriter.afterPropertiesSet();
+//        return itemWriter;
+//    }
 
     private ItemWriter<Person> csvItemWriter() throws Exception {
         //----------person 으로 매핑하는 설정
@@ -126,7 +138,7 @@ public class ItemWriterConfiguration {
         List<Person> items = new ArrayList<>();
 
         for (int i = 0; i < 100; i++) {
-            items.add(new Person(i+1,"test name "+i ,"test age","test address"));
+            items.add(new Person("test name "+i ,"test age","test address"));
         }
         return items;
     }
