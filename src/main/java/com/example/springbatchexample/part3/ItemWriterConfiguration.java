@@ -32,16 +32,18 @@ public class ItemWriterConfiguration {
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 //    private final DataSource dataSource;
-    private final EntityManagerFactory entityManagerFactory;
+//    private final EntityManagerFactory entityManagerFactory;
 
     public ItemWriterConfiguration(JobBuilderFactory jobBuilderFactory,
-                                   StepBuilderFactory stepBuilderFactory,
+                                   StepBuilderFactory stepBuilderFactory
 //                                   DataSource dataSource,
-                                   EntityManagerFactory entityManagerFactory) {
+//                                   EntityManagerFactory entityManagerFactory
+                                   )
+                                   {
             this.jobBuilderFactory = jobBuilderFactory;
             this.stepBuilderFactory = stepBuilderFactory;
 //        this.dataSource = dataSource;
-        this.entityManagerFactory = entityManagerFactory;
+//        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Bean
@@ -50,7 +52,7 @@ public class ItemWriterConfiguration {
                 .incrementer(new RunIdIncrementer())
                 .start(this.csvItemWriterStep())
 //                .next(this.jdbcBatchItemWriterStep())
-                .next(this.jpaItemWriterStep())
+//                .next(this.jpaItemWriterStep())
                 .build();
     }
 
@@ -73,23 +75,23 @@ public class ItemWriterConfiguration {
 //                .build();
 //    }
 
-    @Bean
-    public Step jpaItemWriterStep() throws Exception {
-        return stepBuilderFactory.get("jpaItemWriterStep")
-                .<Person, Person>chunk(10)
-                .reader(itemReader())
-                .writer(jpaItemWriter())
-                .build();
-    }
-
-    private ItemWriter<Person> jpaItemWriter() throws Exception {
-        JpaItemWriter<Person> itemWriter = new JpaItemWriterBuilder<Person>()
-                .entityManagerFactory(entityManagerFactory)
-                .usePersist(true)
-                .build();
-        itemWriter.afterPropertiesSet();
-        return itemWriter;
-    }
+//    @Bean
+//    public Step jpaItemWriterStep() throws Exception {
+//        return stepBuilderFactory.get("jpaItemWriterStep")
+//                .<Person, Person>chunk(10)
+//                .reader(itemReader())
+//                .writer(jpaItemWriter())
+//                .build();
+//    }
+//
+//    private ItemWriter<Person> jpaItemWriter() throws Exception {
+//        JpaItemWriter<Person> itemWriter = new JpaItemWriterBuilder<Person>()
+//                .entityManagerFactory(entityManagerFactory)
+//                .usePersist(true)
+//                .build();
+//        itemWriter.afterPropertiesSet();
+//        return itemWriter;
+//    }
 
 //    private ItemWriter<Person> jdbcBatchItemWriter() {
 //        JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriterBuilder<Person>()
