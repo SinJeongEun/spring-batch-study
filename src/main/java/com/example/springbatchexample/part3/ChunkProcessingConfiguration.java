@@ -40,9 +40,9 @@ public class ChunkProcessingConfiguration {
     @Bean
     public Job chunkProcessingJob() {
         return jobBuilderFactory.get("chunkProcessingJob")
-                .incrementer(new RunIdIncrementer())
-                .start(this.taskBaseStep())
-                .next(this.chunkBaseStep(null))
+                .incrementer(new RunIdIncrementer()) // 각 배치 job 실행마다 새로운 Run ID가 생성되어 JobParameters에 추가 (고유성 보장)
+                .start(this.taskBaseStep()) // 17ms 소요
+                .next(this.chunkBaseStep(null)) // 8ms 소요
                 .build();
     }
 
@@ -51,7 +51,7 @@ public class ChunkProcessingConfiguration {
     public Step chunkBaseStep(@Value("#{jobParameters[chunkSize]}") String chunkSize) {
 
         return stepBuilderFactory.get("chunkBaseStep")
-                .<String, String>chunk(StringUtils.isNotEmpty(chunkSize) ? Integer.parseInt(chunkSize) : 10)
+                .<String, String>chunk(StringUtils.isNotEmpty(chunkSize) ? Integer.parseInt(chunkSize) : 10)// <input타입,output타입>이다.  , N개의 데이터를 [10개]씩 나눈다 -> 배치 대상을 일정 크기로 쪼갬.
                 .reader(itemReader())
                 .processor(itemProcessor())
                 .writer(itemWriter())
@@ -63,12 +63,14 @@ public class ChunkProcessingConfiguration {
     }
 
     private ItemWriter<String> itemWriter() {
+        // itemWriter은 itemReader. itemProcessor와 달리 일괄처리 한다.
         return items -> log.info("chunk item size : {}", items.size());
 //        return items -> items.forEach(log::info);
     }
 
     private ItemProcessor<String, String> itemProcessor() { // itemReader에서 생성된 데이터를 가공하거나, witer로 넘길지 말지 결정한다 null을 리턴하면 넘어가지 않는다. ㄷ
         //즉 이 경우는 writer 로 넘어간다.
+        // 만약 return null 인 경우에는 writer로 넘어가지 못하게 된다.
         return item -> item + ", Spring Batch";
     }
 
@@ -81,6 +83,7 @@ public class ChunkProcessingConfiguration {
 
     @Bean
     @StepScope
+    // tasklet 을 chunk처럼 사용하기
     public Tasklet tasklet(@Value("#{jobParameters[chunkSize]}") String value) { // chunk 처럼 처리 가능하지만 보시다시피 복잡하다
         List<String> items = getItems();
 
@@ -91,7 +94,7 @@ public class ChunkProcessingConfiguration {
 
             int chunkSize = StringUtils.isNotEmpty(value) ? Integer.parseInt(value) : 10; // 이는 Spring Expression Language  방식
 
-            int fromIndex = stepExecution.getReadCount(); // 0
+            int fromIndex = stepExecution.getReadCount(); // 0 , 10 ,,,
             int toIndex = fromIndex + chunkSize; // 시작 인덱스부터 Chunk 사이까지 읽은 인덱스 뽑기 / 0 + 10
 
             if (fromIndex >= items.size()) {
