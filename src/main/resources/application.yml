@@ -3,30 +3,13 @@ spring:
     job:
       names: ${job.name:NONE}
 
-#      initialize-schema:  # 스크립트 생성 시점을 설정한다.
-#  datasource:
-#    driver-class-name: org.h2.Driver
-#  sql:
-#    init:
-#      data-locations: classpath:person.sql
-
   datasource:
-    driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/spring_batch?useUnicode=true&serverTimezone=Asia/Seoul
     username: root
     password:
-#  datasource:
-#    hikari:
-#      driver-class-name: org.h2.Driver
-#    sql:
-#      init:
-#        data-locations: classpath:person.sql
 
-#datasource:
-#  hikari:
-#    jdbc-url: jdbc:h2://localhost:3306/spring_batch
-#    driver-class-name: org.h2.Driver
-#    username: root
-#    password:
+
 
 
 
