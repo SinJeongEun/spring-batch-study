@@ -6,15 +6,10 @@ spring:
       username: root
       password:
       driver-class-name: com.mysql.cj.jdbc.Driver
-#  datasource:
-#    url: jdbc:mysql://localhost:3306/spring_batch?rewriteBatchedStatements=true
-#    driver-class-name: com.mysql.cj.jdbc.Driver
-#    username: root
-#    password:
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: update
-    show-sql: true
   batch:
     jdbc:
       initialize-schema: never
