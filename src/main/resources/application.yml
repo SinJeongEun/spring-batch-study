@@ -4,7 +4,7 @@ spring:
       names: ${job.name:NONE}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
