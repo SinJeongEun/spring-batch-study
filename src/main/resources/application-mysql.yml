@@ -11,5 +11,4 @@ spring:
     hibernate:
       ddl-auto: update
   batch:
-    jdbc:
-      initialize-schema: never
+      initialize-schema: always
