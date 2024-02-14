@@ -1,52 +1,7 @@
 spring:
   batch:
-    initialize-schema: always
     job:
       names: ${job.name:NONE}
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
+    initialize-schema:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/spring_batch?useUnicode=true&serverTimezone=Asia/Seoul
-    username: root
-    password:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#server:
-#  port: 9090
-#
-#spring:
-#  jpa:
-#    hibernate:
-#      ddl-auto: update
-#    show-sql: true
-#    database: mysql
-#
-#  datasource:
-#    hikari:
-#      driver-class-name: com.mysql.cj.jdbc.Driver
-#      url: jdbc:mysql://localhost:3306/spring_batch?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Seoul
-#    username: root
-#    password:
+    driver-class-name: org.h2.Driver

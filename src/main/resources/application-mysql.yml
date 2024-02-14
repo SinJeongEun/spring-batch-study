@@ -1,14 +1,17 @@
 spring:
-  datasource:
-    hikari:
-      #rewriteBatchedStatements=true 는 bulk insert 를 사용하기 위한 옵션
-      jdbc-url: jdbc:mysql://localhost:3306/spring_batch?rewriteBatchedStatements=true
-      username: root
-      password:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
   batch:
-      initialize-schema: always
+    initialize-schema: always
+    job:
+      names: ${job.name:NONE}
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #rewriteBatchedStatements=true 는 bulk insert 를 사용하기 위한 옵션
+    url: jdbc:mysql://localhost:3306/spring_batch?rewriteBatchedStatements=true&useUnicode=true&serverTimezone=Asia/Seoul
+    username: root
+    password:
+
+# program argument 설정  : --spring.profiles.active=mysql
