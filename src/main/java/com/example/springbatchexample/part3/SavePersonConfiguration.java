@@ -40,6 +40,8 @@ public class SavePersonConfiguration  {
         return jobBuilderFactory.get("savePersonJob")
                 .incrementer(new RunIdIncrementer())
                 .start(this.savePersonStep(null))
+                .listener(new SavePersonListener.SaverPersonJobExecutionListener())
+                .listener(new SavePersonListener.SavePersonAnnotationJobExecutionListener()) // 내부적으로 List에 listener을 저장하여 순서대로 실행한다
                 .build();
     }
 
@@ -52,6 +54,7 @@ public class SavePersonConfiguration  {
                 .reader(itemReader())
                 .processor(new DuplicateValidationProcessor<>(Person::getName, Boolean.parseBoolean(allowDuplicate)))
                 .writer(itemWriter())
+                .listener(new SavePersonListener.SavePersonStepExecutionListener())
                 .build();
     }
 
