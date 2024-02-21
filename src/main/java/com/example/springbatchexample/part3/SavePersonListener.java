@@ -28,8 +28,8 @@ public class SavePersonListener {
                             .mapToInt(StepExecution::getWriteCount)
                             .sum();
             log.info("after job  {}", sum);
-            log.info("after job  getExecutionContext {}", jobExecution.getExecutionContext());
-            log.info("after job  getStepExecutions {}", jobExecution.getStepExecutions());
+//            log.info("after job  getExecutionContext {}", jobExecution.getExecutionContext());
+//            log.info("after job  getStepExecutions {}", jobExecution.getStepExecutions());
 
            /* jobExecution.getStepExecutions()  => [StepExecution: id=3, version=13, name=savePersonStep, status=COMPLETED, exitStatus=COMPLETED
                     , readCount=100, filterCount=0, writeCount=100 readSkipCount=0, writeSkipCount=0, processSkipCount=0
@@ -64,8 +64,8 @@ public class SavePersonListener {
 
         @AfterStep
         public ExitStatus afterStep(StepExecution stepExecution){
-            log.info("after step  getWriteCount", stepExecution.getWriteCount());
-            log.info("after step stepExecution {}", stepExecution);
+            log.info("after step  getWriteCount {}", stepExecution.getWriteCount());
+//            log.info("after step stepExecution {}", stepExecution);
 
             if(stepExecution.getWriteCount() == 0) return ExitStatus.FAILED;   // 상태 조작 가능
             // 스프링 배치에서는 내부적으로 step의 실패/종료 등 상태를 저장하고있음.
