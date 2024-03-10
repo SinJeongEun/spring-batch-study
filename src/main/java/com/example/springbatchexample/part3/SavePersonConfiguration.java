@@ -2,6 +2,7 @@ package com.example.springbatchexample.part3;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.collection.internal.PersistentBag;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -77,7 +78,7 @@ public class SavePersonConfiguration  {
 
 
         CompositeItemProcessor itemProcessor = new CompositeItemProcessorBuilder()
-                .delegates(validationProcessor, duplicateValidationProcessor)
+                .delegates(new PersonValidationRetryProcessor(), validationProcessor, duplicateValidationProcessor)
                 .build();
 
         itemProcessor.afterPropertiesSet();
