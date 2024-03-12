@@ -4,6 +4,8 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.retry.support.RetryTemplateBuilder;
 
+import java.net.SocketTimeoutException;
+
 public class PersonValidationRetryProcessor implements ItemProcessor<Person, Person> {
 
     private final RetryTemplate retryTemplate;
@@ -11,7 +13,7 @@ public class PersonValidationRetryProcessor implements ItemProcessor<Person, Per
     public PersonValidationRetryProcessor() {
         this.retryTemplate = new RetryTemplateBuilder()
                 .maxAttempts(2)
-                .retryOn(NotFoundNameException.class)
+                .retryOn(NotFoundNameException.class) // 재시도 되는 조건 이 에러가 아니면 maxAttempt 만큼 실행하지 않고 바로 recoveryCallback 실행된다.
                 .build();
     }
 
@@ -23,7 +25,7 @@ public class PersonValidationRetryProcessor implements ItemProcessor<Person, Per
 
             throw new NotFoundNameException();
         }, context -> {
-            // recoveryCallback  : 3번째해는 해당 구간이 실행된다.
+            // recoveryCallback  : 재시도가 불가한 경우에 실행된다.
             return item.unknownName();
         });
     }
